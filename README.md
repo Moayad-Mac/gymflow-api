@@ -18,7 +18,7 @@ GymFlow lets a gym chain manage:
 
 ## Tech stack
 
-- **Laravel 11** (PHP)
+- **Laravel 13** (PHP)
 - **MySQL**
 - **Laravel Sanctum** for token-based API authentication
 - Deployed on **Railway**
