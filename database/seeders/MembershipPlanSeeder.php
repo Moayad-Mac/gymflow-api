@@ -9,21 +9,21 @@ class MembershipPlanSeeder extends Seeder
 {
     public function run(): void
     {
-        MembershipPlan::create([
+        MembershipPlan::firstOrCreate([
             'name' => 'Monthly',
             'price' => 30,
             'duration_days' => 30,
             'description' => 'Full access to all gyms, billed monthly.',
         ]);
 
-        MembershipPlan::create([
+        MembershipPlan::firstOrCreate([
             'name' => 'Quarterly',
             'price' => 80,
             'duration_days' => 90,
             'description' => 'Full access to all gyms, billed every 3 months. Save compared to monthly.',
         ]);
 
-        MembershipPlan::create([
+        MembershipPlan::firstOrCreate([
             'name' => 'Annual',
             'price' => 280,
             'duration_days' => 365,

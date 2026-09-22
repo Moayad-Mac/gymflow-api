@@ -17,13 +17,13 @@ class StaffSeeder extends Seeder
         ];
 
         foreach ($staffMembers as $staffData) {
-            $user = User::create([
+            $user = User::firstOrCreate([
                 'name' => $staffData['name'],
                 'email' => $staffData['email'],
                 'password' => Hash::make('password'),
             ]);
 
-            Staff::create([
+            Staff::firstOrCreate([
                 'user_id' => $user->id,
                 'gym_id' => $staffData['gym_id'],
             ]);

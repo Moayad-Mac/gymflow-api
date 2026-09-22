@@ -19,13 +19,13 @@ class MemberSeeder extends Seeder
         ];
 
         foreach ($members as $memberData) {
-            $user = User::create([
+            $user = User::firstOrCreate([
                 'name' => $memberData['name'],
                 'email' => $memberData['email'],
                 'password' => Hash::make('password'),
             ]);
 
-            Member::create([
+            Member::firstOrCreate([
                 'user_id' => $user->id,
                 'gym_id' => $memberData['gym_id'],
             ]);

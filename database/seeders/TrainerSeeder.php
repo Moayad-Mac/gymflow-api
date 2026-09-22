@@ -19,13 +19,13 @@ class TrainerSeeder extends Seeder
         ];
 
         foreach ($trainers as $trainerData) {
-            $user = User::create([
+            $user = User::firstOrCreate([
                 'name' => $trainerData['name'],
                 'email' => $trainerData['email'],
                 'password' => Hash::make('password'),
             ]);
 
-            Trainer::create([
+            Trainer::firstOrCreate([
                 'user_id' => $user->id,
                 'gym_id' => $trainerData['gym_id'],
             ]);

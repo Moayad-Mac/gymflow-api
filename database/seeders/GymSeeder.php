@@ -32,7 +32,7 @@ class GymSeeder extends Seeder
         ];
 
         foreach ($gyms as $gym) {
-            Gym::create($gym);
+            Gym::firstOrCreate($gym);
         }
     }
 }

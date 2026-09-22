@@ -9,7 +9,7 @@ class GymClassSeeder extends Seeder
 {
     public function run(): void
     {
-        GymClass::create([
+        GymClass::firstOrCreate([
             'name' => 'Morning Yoga',
             'trainer_id' => 1,
             'gym_id' => 1,
@@ -19,7 +19,7 @@ class GymClassSeeder extends Seeder
             'capacity' => 15,
         ]);
 
-        GymClass::create([
+        GymClass::firstOrCreate([
             'name' => 'HIIT Blast',
             'trainer_id' => 2,
             'gym_id' => 1,
@@ -29,7 +29,7 @@ class GymClassSeeder extends Seeder
             'capacity' => 20,
         ]);
 
-        GymClass::create([
+        GymClass::firstOrCreate([
             'name' => 'Strength Training',
             'trainer_id' => 3,
             'gym_id' => 2,
@@ -39,7 +39,7 @@ class GymClassSeeder extends Seeder
             'capacity' => 12,
         ]);
 
-        GymClass::create([
+        GymClass::firstOrCreate([
             'name' => 'Evening Pilates',
             'trainer_id' => 4,
             'gym_id' => 3,
