@@ -1,58 +1,77 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+https://gymflow-api-h7e9.onrender.com
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+# GymFlow API
 
-## About Laravel
+Backend API for **GymFlow**, a gym management system built to replace manual, WhatsApp/paper-based class booking and membership tracking with a proper multi-gym platform.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Live demo:** [add your Railway URL here]
+**Frontend repo:** [gymflow-web](https://github.com/Moayad-Mac/gymflow-web)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## What it does
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+GymFlow lets a gym chain manage:
+- Multiple gym locations
+- Recurring weekly classes with trainers and capacity limits
+- Member bookings for specific class sessions
+- Membership plans and subscriptions (chain-wide access)
+- Staff-managed check-ins at the door
 
-## Learning Laravel
+## Tech stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Laravel 11** (PHP)
+- **MySQL**
+- **Laravel Sanctum** for token-based API authentication
+- Deployed on **Railway**
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Roles
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+The API supports three roles, each with a separate profile table linked to `users`:
 
-## Agentic Development
+| Role | Can do |
+|---|---|
+| **Member** | Browse classes, book/cancel their own bookings, view their own subscription |
+| **Trainer** | View their own classes and the roster (confirmed bookings) for each |
+| **Staff** | Full access — manage classes, manage subscriptions, check members in, view all bookings |
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Key architecture decisions
+
+- **Classes are immutable.** A class can be created or deleted, but never edited. Editing a live class (time, trainer, capacity) creates silent conflicts with existing member bookings — staff cancel and recreate instead, which keeps booking data trustworthy.
+- **Subscription status is checked live, not just stored.** Rather than relying on a scheduled job to flip `active` → `expired`, every check compares the stored status against the actual expiry date at request time. Simpler to reason about for a project this size, with the same correctness guarantee.
+- **Bookings reference a specific `class_date`, not just a class.** Since classes are recurring weekly templates, a booking needs to record *which* occurrence a member reserved — this is what makes capacity checks and duplicate-booking checks possible.
+- **Booking and check-in are separate concerns.** A booking is a reservation made in advance; a check-in is proof of attendance on the day. This split lets the system distinguish a booked-but-no-show from an actual visit.
+
+## Setup
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone https://github.com/Moayad-Mac/gymflow-api.git
+cd gymflow-api
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Set your database credentials in `.env`, then:
 
-## Contributing
+```bash
+php artisan migrate --seed
+php artisan serve
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Seeded accounts (password for all: `password`):
+- Staff: `nadine.staff@gymflow.test`
+- Trainer: `karim.trainer@gymflow.test`
+- Member: `tarek@gymflow.test`
 
-## Code of Conduct
+## Core endpoints
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/register` | Member self-registration |
+| POST | `/login` | Login, returns Sanctum token |
+| GET | `/gym-classes` | List classes (scoped by role) |
+| POST | `/gym-classes` | Create a class (staff only) |
+| POST | `/bookings` | Book a class session |
+| DELETE | `/bookings/{id}` | Cancel a booking |
+| GET | `/gym-classes/{id}/roster` | View a class's confirmed bookings (trainer, own classes only) |
+| POST | `/subscriptions` | Create a subscription (staff only) |
+| POST | `/check-in` | Check in a booking (staff only) |
